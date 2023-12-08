@@ -31,7 +31,8 @@ namespace RocketPunch.Bad
                 return;
             }
             
-            this.bundle = AssetBundle.LoadFromFile( "AssetBundles/" + this.name );
+            var path = BadPathHelper.GetAssetBundlePath( this.name );
+            this.bundle = AssetBundle.LoadFromFile( path );
             if( this.bundle == null )
             {
                 throw new System.Exception( $"Failed to load bundle '{this.name}'" );
@@ -39,12 +40,21 @@ namespace RocketPunch.Bad
 
             this.state = BadBundleState.Loaded;
             
-            BadLog.Info( $"Loaded bundle '{this.name}'" );
+            BadLog.Info( $"[SYNC] Loaded bundle '{this.name}'" );
         }
 
-        public void AddAsset( BadAssetInfo asset )
+        public BadBundleLoadOperation LoadAsync()
         {
-            _assets.Add( asset );
+            if( this.bundle != null )
+            {
+                return null;
+            }
+
+            this.state = BadBundleState.Loading;
+            
+            var path = BadPathHelper.GetAssetBundlePath( this.name );
+            var request = AssetBundle.LoadFromFileAsync( path );
+            return new BadBundleLoadOperation( this, request );
         }
 
         public void Unload()
@@ -55,7 +65,20 @@ namespace RocketPunch.Bad
             this.bundle = null;
             this.state = BadBundleState.Downloaded;
             
-            BadLog.Info( $"Unloaded bundle '{this.name}'" );
+            BadLog.Info( $"[SYNC] Unloaded bundle '{this.name}'" );
+        }
+
+        public BadBundleUnloadOperation UnloadAsync()
+        {
+            this.state = BadBundleState.Unloading;
+            
+            var request = this.bundle.UnloadAsync( true );
+            return new BadBundleUnloadOperation( this, request );
+        }
+
+        public void AddAsset( BadAssetInfo asset )
+        {
+            _assets.Add( asset );
         }
 
         public override string ToString()

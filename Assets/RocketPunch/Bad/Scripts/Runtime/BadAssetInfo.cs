@@ -27,6 +27,21 @@ namespace RocketPunch.Bad
             
             this.loadedInfo.referenceCount++;
         }
+        
+        public BadAssetLoadOperation LoadAsync()
+        {
+            if( this.loadedInfo != null )
+            {
+                this.loadedInfo.referenceCount++;
+                return null;
+            }
+
+            var bundle = this.bundle.bundle;
+            Debug.Assert( bundle );
+            
+            var request = bundle.LoadAssetAsync( this.guid );
+            return new BadAssetLoadOperation( this, request );
+        }
 
         public void Unload()
         {
@@ -37,6 +52,21 @@ namespace RocketPunch.Bad
             {
                 this.DoUnload();
             }
+            
+            this.RemoveDependencies();
+        }
+
+        public void UnloadAsync()
+        {
+            Debug.Assert( this.loadedInfo != null );
+            
+            this.loadedInfo.referenceCount--;
+            if( this.loadedInfo.referenceCount == 0 )
+            {
+                this.DoUnloadAsync();
+            }
+            
+            this.RemoveDependenciesAsync();
         }
 
         public override string ToString()
@@ -60,7 +90,7 @@ namespace RocketPunch.Bad
             this.loadedInfo = new BadLoadedAssetInfo( this, obj );
             BadLoadedAssetLibrary.Add( this.loadedInfo );
             
-            BadLog.Info( $"Loaded asset '{this.name}' ({this.guid}) from bundle '{this.bundle.name}'" );
+            BadLog.Info( $"[SYNC] Loaded asset '{this.name}' ({this.guid}) from bundle '{this.bundle.name}'" );
         }
 
         private void DoUnload()
@@ -68,10 +98,19 @@ namespace RocketPunch.Bad
             BadLoadedAssetLibrary.Remove( this.loadedInfo );
             this.loadedInfo = null;
             
-            BadLog.Info( $"Unloaded asset '{this.name}' ({this.guid}) from bundle '{this.bundle.name}'" );
+            BadLog.Info( $"[SYNC] Unloaded asset '{this.name}' ({this.guid}) from bundle '{this.bundle.name}'" );
             
             this.TryUnloadBundle();
-            this.RemoveDependencies();
+        }
+        
+        private void DoUnloadAsync()
+        {
+            BadLoadedAssetLibrary.Remove( this.loadedInfo );
+            this.loadedInfo = null;
+            
+            BadLog.Info( $"[ASYNC] Unloaded asset '{this.name}' ({this.guid}) from bundle '{this.bundle.name}'" );
+            
+            this.TryUnloadBundleAsync();
         }
         
         private void TryUnloadBundle()
@@ -82,11 +121,27 @@ namespace RocketPunch.Bad
             }
         }
         
+        private void TryUnloadBundleAsync()
+        {
+            if( this.bundle.hasLoadedAssets == false )
+            {
+                this.bundle.UnloadAsync();
+            }
+        }
+        
         private void RemoveDependencies()
         {
             foreach( var dependency in this.dependencies )
             {
                 dependency.Unload();
+            }
+        }
+        
+        private void RemoveDependenciesAsync()
+        {
+            foreach( var dependency in this.dependencies )
+            {
+                dependency.UnloadAsync();
             }
         }
     }

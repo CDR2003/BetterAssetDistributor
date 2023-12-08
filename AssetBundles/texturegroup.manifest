@@ -1,0 +1,17 @@
+ManifestFileVersion: 0
+CRC: 345482228
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 9983acd0beed6de43c0edea9a79ceb33
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: b0363f7088f9761414f730641bf9a24b
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/RocketPunch/Bad/Samples/Sample01/Textures/URP.png
+Dependencies: []

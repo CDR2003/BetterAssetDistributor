@@ -36,6 +36,12 @@ namespace RocketPunch.Bad
             }
         }
 
+        [MenuItem( "BAD/Unload All" )]
+        public static void UnloadAll()
+        {
+            AssetBundle.UnloadAllAssetBundles( true );
+        }
+
         private static List<BadAssetGroup> GetAssetGroups()
         {
             var assetGroupDefs = AssetDatabase.FindAssets( "t:BadAssetGroupDef" ).Select( AssetDatabase.GUIDToAssetPath ).Select( AssetDatabase.LoadAssetAtPath<BadAssetGroupDef> ).ToList();

@@ -1,0 +1,37 @@
+ManifestFileVersion: 0
+CRC: 1024644204
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: e0f8283dc5af0fdea25f143f1f9defd1
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 0969b429858669f262a13f3593ca7096
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/RocketPunch/Bad/Samples/Sample01/Prefabs/Sphere.prefab
+- Assets/RocketPunch/Bad/Samples/Sample01/Prefabs/Cube.prefab
+Dependencies:
+- F:/LAB/UNITY/BetterAssetDistributor/AssetBundles/texturegroup

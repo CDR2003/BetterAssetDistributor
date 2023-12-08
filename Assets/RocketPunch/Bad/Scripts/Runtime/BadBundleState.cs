@@ -7,5 +7,6 @@
         Downloaded,
         Loading,
         Loaded,
+        Unloading,
     }
 }
