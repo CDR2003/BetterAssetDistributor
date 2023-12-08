@@ -2,7 +2,7 @@
 {
     public static class BadPathHelper
     {
-        public static string GetAssetBundlePath( string name )
+        public static string GetLocalAssetPath( string name )
         {
             return $"AssetBundles/{name}";
         }

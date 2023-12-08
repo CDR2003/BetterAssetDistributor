@@ -17,8 +17,9 @@ namespace RocketPunch.Bad
             foreach( var group in groups )
             {
                 var bundle = new BadBundleInfoChunk();
+                var path = Path.Combine( outputPath, group.name );
                 bundle.name = group.name;
-                bundle.hash = BadHashUtility.ComputeXXHash( Path.Combine( outputPath, bundle.name ) );
+                bundle.hash = BadHashUtility.ComputeXXHash( path, out bundle.size );
                 file.bundles.Add( bundle.name, bundle );
             }
 

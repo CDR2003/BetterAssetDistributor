@@ -31,7 +31,7 @@ namespace RocketPunch.Bad
                 return;
             }
             
-            var path = BadPathHelper.GetAssetBundlePath( this.name );
+            var path = BadPathHelper.GetLocalAssetPath( this.name );
             this.bundle = AssetBundle.LoadFromFile( path );
             if( this.bundle == null )
             {
@@ -52,7 +52,7 @@ namespace RocketPunch.Bad
 
             this.state = BadBundleState.Loading;
             
-            var path = BadPathHelper.GetAssetBundlePath( this.name );
+            var path = BadPathHelper.GetLocalAssetPath( this.name );
             var request = AssetBundle.LoadFromFileAsync( path );
             return new BadBundleLoadOperation( this, request );
         }

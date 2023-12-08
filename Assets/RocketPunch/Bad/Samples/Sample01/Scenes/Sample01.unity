@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df072b07103244b698e5cb284398f223, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  infoFileName: asset_info_20231207165955
+  infoFileName: asset_info_20231208164054
 --- !u!4 &557786945
 Transform:
   m_ObjectHideFlags: 0

@@ -22,7 +22,7 @@ namespace RocketPunch.Bad
         {
             this.guid = guid;
             this.path = path;
-            this.hash = BadHashUtility.ComputeXXHash( this.path );
+            this.hash = BadHashUtility.ComputeXXHash( this.path, out _ );
             this.name = Path.GetFileNameWithoutExtension( this.path );
         }
     }

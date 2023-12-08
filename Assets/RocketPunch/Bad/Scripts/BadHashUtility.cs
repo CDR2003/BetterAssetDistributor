@@ -9,9 +9,10 @@ namespace RocketPunch.Bad
     {
         private static readonly XXHash64 _xxhasher = XXHash64.Create();
         
-        public static byte[] ComputeXXHash( string path )
+        public static byte[] ComputeXXHash( string path, out int size )
         {
             var bytes = File.ReadAllBytes( path );
+            size = bytes.Length;
             return _xxhasher.ComputeHash( bytes );
         }
         
