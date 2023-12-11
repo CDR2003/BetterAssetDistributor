@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
-namespace RocketPunch.Bad
+namespace RocketPunch.Bad.Operations
 {
     public class BadReadFileOperation : BadOperation<byte[]>
     {

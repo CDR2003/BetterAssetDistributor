@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using RocketPunch.Bad.Operations;
 using UnityEngine;
 
 namespace RocketPunch.Bad
@@ -15,6 +16,8 @@ namespace RocketPunch.Bad
         public AssetBundle bundle;
 
         public bool hasLoadedAssets => _assets.Any( a => a.loadedInfo?.referenceCount > 0 );
+        
+        public bool hasLoaded => this.bundle != null;
         
         private readonly HashSet<BadAssetInfo> _assets = new();
 
@@ -43,23 +46,30 @@ namespace RocketPunch.Bad
             BadLog.Info( $"[SYNC] Loaded bundle '{this.name}'" );
         }
 
-        public BadBundleLoadOperation LoadAsync()
+        public BadLoadBundleOperation LoadAsync()
         {
-            if( this.bundle != null )
-            {
-                return null;
-            }
+            return new BadLoadBundleOperation( this );
+        }
 
-            this.state = BadBundleState.Loading;
+        public Object LoadAsset( string guid )
+        {
+            Debug.Assert( this.hasLoaded );
+            return this.bundle.LoadAsset( guid );
+        }
+
+        public void TryUnload()
+        {
+            if( this.hasLoadedAssets )
+            {
+                return;
+            }
             
-            var path = BadPathHelper.GetLocalAssetPath( this.name );
-            var request = AssetBundle.LoadFromFileAsync( path );
-            return new BadBundleLoadOperation( this, request );
+            this.Unload();
         }
 
         public void Unload()
         {
-            Debug.Assert( this.bundle != null );
+            Debug.Assert( this.bundle );
             
             this.bundle.Unload( true );
             this.bundle = null;
@@ -68,12 +78,9 @@ namespace RocketPunch.Bad
             BadLog.Info( $"[SYNC] Unloaded bundle '{this.name}'" );
         }
 
-        public BadBundleUnloadOperation UnloadAsync()
+        public BadUnloadBundleOperation UnloadAsync()
         {
-            this.state = BadBundleState.Unloading;
-            
-            var request = this.bundle.UnloadAsync( true );
-            return new BadBundleUnloadOperation( this, request );
+            return new BadUnloadBundleOperation( this );
         }
 
         public void AddAsset( BadAssetInfo asset )

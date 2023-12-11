@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RocketPunch.Bad.Operations;
 using UnityEngine;
 
 namespace RocketPunch.Bad.Samples
@@ -9,7 +10,7 @@ namespace RocketPunch.Bad.Samples
 
         private GameObject _cubePrefab;
 
-        private BadAssetAsyncLoadTask _loadTask;
+        private BadLoadAssetOperation _loadOperation;
 
         private Stack<GameObject> _cubes = new();
         
@@ -18,11 +19,11 @@ namespace RocketPunch.Bad.Samples
             BadAssetLibrary.Load( $"AssetBundles/{this.infoFileName}.bad" );
         }
 
-        private void OnLoadTaskCompleted( BadAsyncLoadTask obj )
+        private void OnLoadOperationCompleted( BadOperation operation )
         {
-            _loadTask.complete -= this.OnLoadTaskCompleted;
+            _loadOperation.complete -= this.OnLoadOperationCompleted;
             
-            _cubePrefab = _loadTask.obj as GameObject;
+            _cubePrefab = _loadOperation.value as GameObject;
             
             var cube = Instantiate( _cubePrefab );
             _cubes.Push( cube );
@@ -34,8 +35,8 @@ namespace RocketPunch.Bad.Samples
         {
             if( Input.GetMouseButtonDown( 0 ) )
             {
-                _loadTask = BadLoader.LoadAsync<GameObject>( "Cube" );
-                _loadTask.complete += this.OnLoadTaskCompleted;
+                _loadOperation = BadLoader.LoadAsync<GameObject>( "Cube" );
+                _loadOperation.complete += this.OnLoadOperationCompleted;
             }
             
             if( Input.GetMouseButtonDown( 1 ) )
@@ -44,7 +45,7 @@ namespace RocketPunch.Bad.Samples
                 {
                     var cube = _cubes.Pop();
                     Destroy( cube );
-                    BadLoader.Unload( _cubePrefab );
+                    BadLoader.UnloadAsync( _cubePrefab );
                 }
             }
         }

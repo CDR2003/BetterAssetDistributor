@@ -4,23 +4,30 @@ namespace RocketPunch.Bad
 {
     public abstract class BadOperation
     {
-        public string errorMessage { get; private set; }
+        public delegate void CompleteDelegate( BadOperation operation );
+        
+        public delegate void ErrorDelegate( BadOperation operation, string message );
+        
+        public event CompleteDelegate complete;
 
-        public event Action<BadOperation> complete;
-
-        public event Action<BadOperation> error;
+        public event ErrorDelegate error;
         
         public abstract void Run();
+
+        protected virtual void Cleanup()
+        {
+        }
         
         protected void Complete()
         {
             this.complete?.Invoke( this );
+            this.Cleanup();
         }
         
         protected void Error( string message )
         {
-            this.errorMessage = message;
-            this.error?.Invoke( this );
+            this.error?.Invoke( this, message );
+            this.Cleanup();
         }
     }
     

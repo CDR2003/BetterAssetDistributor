@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RocketPunch.Bad.Operations;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,42 +10,28 @@ namespace RocketPunch.Bad
     {
         public static T Load<T>( string name ) where T : UnityEngine.Object
         {
-            if( string.IsNullOrEmpty( name ) )
-            {
-                throw new Exception( $"Name is null or empty" );
-            }
-            
-            var tasks = BadLoadTaskCreator.CreateSyncLoadTasks( name );
-            if( tasks.Count == 0 )
-            {
-                throw new Exception( $"No tasks created for loading asset '{name}'" );
-            }
-
-            RunSyncTasks( tasks );
-
             var asset = BadAssetLibrary.instance.GetAssetInfo( name );
+            asset.Load();
             return asset.loadedInfo.obj as T;
         }
 
-        public static BadAssetAsyncLoadTask LoadAsync<T>( string name ) where T : UnityEngine.Object
+        public static BadLoadAssetOperation LoadAsync<T>( string name ) where T : UnityEngine.Object
         {
             if( string.IsNullOrEmpty( name ) )
             {
                 throw new Exception( $"Name is null or empty" );
             }
             
-            var tasks = BadLoadTaskCreator.CreateAsyncLoadTasks( name );
-            if( tasks.Count == 0 )
+            var asset = BadAssetLibrary.instance.GetAssetInfo( name );
+            if( asset == null )
             {
-                throw new Exception( $"No tasks created for loading asset '{name}'" );
+                throw new Exception( $"Cannot find asset '{name}'" );
             }
 
-            BadTaskScheduler.instance.EnqueueTasks( tasks );
+            var operation = asset.LoadAsync();
+            BadOperationScheduler.instance.EnqueueOperation( operation );
 
-            var lastTask = tasks[^1] as BadAssetAsyncLoadTask;
-            Debug.Assert( lastTask != null );
-            
-            return lastTask;
+            return operation;
         }
 
         public static void Unload( UnityEngine.Object obj )
@@ -53,33 +40,30 @@ namespace RocketPunch.Bad
             {
                 throw new Exception( $"Object is null" );
             }
-            
-            var tasks = BadLoadTaskCreator.CreateSyncUnloadTasks( obj );
-            if( tasks.Count == 0 )
+
+            var loadedAsset = BadLoadedAssetLibrary.Get( obj );
+            if( loadedAsset == null )
             {
-                throw new Exception( $"No tasks created for unloading asset '{obj.name}'" );
+                throw new Exception( $"Cannot find asset '{obj.name}' ({obj.GetType()}) in loaded asset library" );
             }
 
-            RunSyncTasks( tasks );
+            var asset = loadedAsset.asset;
+            asset.Unload();
         }
 
-        public static void UnloadAsync( UnityEngine.Object obj )
+        public static BadOperation UnloadAsync( UnityEngine.Object obj )
         {
             var loadedAsset = BadLoadedAssetLibrary.Get( obj );
             if( loadedAsset == null )
             {
                 throw new Exception( $"Cannot find asset '{obj.name}' ({obj.GetType()}) in loaded asset library" );
             }
+
+            var asset = loadedAsset.asset;
+            var operation = asset.UnloadAsync();
+            BadOperationScheduler.instance.EnqueueOperation( operation );
             
-            loadedAsset.asset.UnloadAsync();
-        }
-        
-        private static void RunSyncTasks( List<BadSyncLoadTask> tasks )
-        {
-            foreach( var task in tasks )
-            {
-                task.Run();
-            }
+            return operation;
         }
     }
 }
