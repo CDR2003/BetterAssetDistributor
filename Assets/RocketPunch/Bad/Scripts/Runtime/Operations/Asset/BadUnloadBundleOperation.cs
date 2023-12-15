@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace RocketPunch.Bad.Operations
+namespace RocketPunch.Bad
 {
     public class BadUnloadBundleOperation : BadOperation
     {

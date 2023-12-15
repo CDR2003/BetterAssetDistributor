@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RocketPunch.Bad.Operations
+namespace RocketPunch.Bad
 {
     public class BadUnloadAssetOperation : BadOperation
     {
@@ -61,7 +61,7 @@ namespace RocketPunch.Bad.Operations
         {
             _postOperation.complete -= this.OnSequenceCompleted;
             _postOperation.error -= this.OnSequenceError;
-            this.Error( $"Inner operation error: {message}" );
+            this.Error( message );
         }
     }
 }

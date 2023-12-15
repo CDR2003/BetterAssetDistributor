@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using RocketPunch.Bad.Operations;
 using UnityEngine;
 
 namespace RocketPunch.Bad
@@ -29,14 +28,14 @@ namespace RocketPunch.Bad
         
         public void Load()
         {
-            if( this.bundle != null )
+            if( this.bundle )
             {
                 return;
             }
             
             var path = BadPathHelper.GetLocalAssetPath( this.name );
             this.bundle = AssetBundle.LoadFromFile( path );
-            if( this.bundle == null )
+            if( !this.bundle )
             {
                 throw new System.Exception( $"Failed to load bundle '{this.name}'" );
             }

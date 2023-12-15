@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace RocketPunch.Bad.Operations
+namespace RocketPunch.Bad
 {
     public class BadLoadBundleOperation : BadOperation<AssetBundle>
     {
@@ -11,6 +11,8 @@ namespace RocketPunch.Bad.Operations
         private UnityWebRequestAsyncOperation _request;
 
         private UnityWebRequest _www;
+
+        private string _url;
         
         public BadLoadBundleOperation( BadBundleInfo bundleInfo )
         {
@@ -28,13 +30,15 @@ namespace RocketPunch.Bad.Operations
             _bundleInfo.state = BadBundleState.Loading;
 
             var path = BadPathHelper.GetLocalAssetPath( _bundleInfo.name );
-            var url = path;
+            _url = path;
             if( path.Contains( "://" ) == false && path.Contains( ":///" ) == false )
             {
-                url = "file://" + Path.GetFullPath( path ).Replace( "\\", "/" );
+                _url = "file://" + Path.GetFullPath( path );
             }
 
-            _www = UnityWebRequestAssetBundle.GetAssetBundle( url );
+            _url = _url.Replace( "\\", "/" );
+
+            _www = UnityWebRequestAssetBundle.GetAssetBundle( _url );
             _request = _www.SendWebRequest();
             _request.completed += this.OnRequestCompleted;
         }
@@ -50,7 +54,7 @@ namespace RocketPunch.Bad.Operations
             
             if( _www.result != UnityWebRequest.Result.Success )
             {
-                this.Error( _request.webRequest.error );
+                this.Error( $"Load bundle failed: '{_url}': {_www.error}" );
                 return;
             }
             

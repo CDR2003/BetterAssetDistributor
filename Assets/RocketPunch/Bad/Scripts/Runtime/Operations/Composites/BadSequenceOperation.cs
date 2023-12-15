@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RocketPunch.Bad.Operations
+namespace RocketPunch.Bad
 {
     public class BadSequenceOperation : BadOperation
     {
@@ -64,7 +64,7 @@ namespace RocketPunch.Bad.Operations
 
         private void OnOperationError( BadOperation operation, string message )
         {
-            this.Error( $"Inner operation error: {message}" );
+            this.Error( message );
         }
 
         private void OnOperationCompleted( BadOperation operation )

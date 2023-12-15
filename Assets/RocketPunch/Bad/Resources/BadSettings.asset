@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32b9d4f11cc54382be9fe7c102f4b5ff, type: 3}
   m_Name: BadSettings
   m_EditorClassIdentifier: 
-  serverUrl: 
-  localLoadPath: 
-  localDownloadPath: 
+  serverUrl: http://127.0.0.1:8080
+  localAssetPath: AssetBundles
+  localDownloadPath: DownloadedAssetBundles

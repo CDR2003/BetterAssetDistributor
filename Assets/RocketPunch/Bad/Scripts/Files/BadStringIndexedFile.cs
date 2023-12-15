@@ -25,17 +25,17 @@ namespace RocketPunch.Bad
         {
             var file = File.Open( path, FileMode.Open );
             var fileReader = new BinaryReader( file );
-            var count = fileReader.ReadInt32();
-            _strings = new List<string>( count );
-            for( var i = 0; i < count; ++i )
-            {
-                _strings.Add( fileReader.ReadString() );
-            }
-
-            _content = new MemoryStream( fileReader.ReadBytes( (int)( file.Length - file.Position ) ) );
-            _reader = new BinaryReader( _content );
+            this.ReadFile( fileReader );
             fileReader.Close();
             file.Close();
+        }
+
+        public BadStringIndexedFile( byte[] content )
+        {
+            using var stream = new MemoryStream( content );
+            var fileReader = new BinaryReader( stream );
+            this.ReadFile( fileReader );
+            fileReader.Close();
         }
 
         public void Dispose()
@@ -108,6 +108,19 @@ namespace RocketPunch.Bad
         {
             var length = _reader.ReadInt32();
             return _reader.ReadBytes( length );
+        }
+
+        private void ReadFile( BinaryReader fileReader )
+        {
+            var count = fileReader.ReadInt32();
+            _strings = new List<string>( count );
+            for( var i = 0; i < count; ++i )
+            {
+                _strings.Add( fileReader.ReadString() );
+            }
+
+            _content = new MemoryStream( fileReader.ReadBytes( (int)( fileReader.BaseStream.Length - fileReader.BaseStream.Position ) ) );
+            _reader = new BinaryReader( _content );
         }
     }
 }

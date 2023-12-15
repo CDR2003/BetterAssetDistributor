@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using RocketPunch.Bad.Operations;
 using UnityEngine;
 
 namespace RocketPunch.Bad.Samples
@@ -16,7 +15,30 @@ namespace RocketPunch.Bad.Samples
         
         public void Start()
         {
-            BadAssetLibrary.Load( $"AssetBundles/{this.infoFileName}.bad" );
+            BadSettings.Load();
+            
+            var operation = new BadCheckVersionOperation();
+            operation.complete += this.OnCheckVersionCompleted;
+            operation.error += this.OnCheckVersionError;
+            operation.Run();
+        }
+
+        private void OnCheckVersionError( BadOperation operation, string message )
+        {
+            operation.complete -= this.OnCheckVersionCompleted;
+            operation.error -= this.OnCheckVersionError;
+            
+            Debug.LogError( message );
+        }
+
+        private void OnCheckVersionCompleted( BadOperation operation )
+        {
+            operation.complete -= this.OnCheckVersionCompleted;
+            operation.error -= this.OnCheckVersionError;
+            
+            var checkVersionOperation = operation as BadCheckVersionOperation;
+            Debug.Log( $"Local version: {checkVersionOperation.localVersion.version}" );
+            Debug.Log( $"Remote version: {checkVersionOperation.remoteVersion.version}" );
         }
 
         private void OnLoadOperationCompleted( BadOperation operation )

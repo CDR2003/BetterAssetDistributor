@@ -6,12 +6,15 @@ namespace RocketPunch.Bad
     public class BadAssetGroup
     {
         public readonly string name;
+
+        public readonly BadAssetLocation location;
         
         public readonly List<BadAsset> assets;
         
-        public BadAssetGroup( string name )
+        public BadAssetGroup( string name, BadAssetLocation location )
         {
             this.name = name;
+            this.location = location;
             this.assets = new();
         }
         

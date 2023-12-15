@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace RocketPunch.Bad.Operations
+namespace RocketPunch.Bad
 {
     public class BadLoadAssetOperation : BadOperation<Object>
     {
@@ -73,7 +73,7 @@ namespace RocketPunch.Bad.Operations
         {
             _requiredOperation.complete -= this.OnRequiredOperationCompleted;
             _requiredOperation.error -= this.OnRequiredOperationError;
-            this.Error( $"Failed to load asset '{_assetInfo.name}' ({_assetInfo.guid}) @ '{_assetInfo.bundle.name}'. \nInner operation error: {message}" );
+            this.Error( $"Failed to load asset '{_assetInfo.name}' ({_assetInfo.guid}) @ '{_assetInfo.bundle.name}'. \n{message}" );
         }
 
         private void OnRequestCompleted( AsyncOperation obj )

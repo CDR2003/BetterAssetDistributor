@@ -48,7 +48,7 @@ namespace RocketPunch.Bad
             var assetGroups = new List<BadAssetGroup>();
             foreach( var def in assetGroupDefs )
             {
-                var assetGroup = new BadAssetGroup( def.name );
+                var assetGroup = new BadAssetGroup( def.name, def.location );
                 foreach( var asset in def.assets )
                 {
                     var assetPath = AssetDatabase.GetAssetPath( asset );

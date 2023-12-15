@@ -1,13 +1,18 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 using UnityEngine.Networking;
 
-namespace RocketPunch.Bad.Operations
+namespace RocketPunch.Bad
 {
     public class BadReadFileOperation : BadOperation<byte[]>
     {
         private readonly string _path;
 
         private UnityWebRequestAsyncOperation _request;
+        
+        private UnityWebRequest _www;
+
+        private string _url;
         
         public BadReadFileOperation( string path )
         {
@@ -16,14 +21,16 @@ namespace RocketPunch.Bad.Operations
 
         public override void Run()
         {
-            var url = _path;
+            _url = _path;
             if( _path.Contains( "://" ) == false && _path.Contains( ":///" ) == false )
             {
-                url = "file://" + _path;
+                _url = "file://" + Path.GetFullPath( _path );
             }
 
-            using var www = UnityWebRequest.Get( url );
-            _request = www.SendWebRequest();
+            _url = _url.Replace( "\\", "/" );
+
+            _www = UnityWebRequest.Get( _url );
+            _request = _www.SendWebRequest();
             _request.completed += this.OnRequestCompleted;
         }
 
@@ -31,13 +38,16 @@ namespace RocketPunch.Bad.Operations
         {
             _request.completed -= this.OnRequestCompleted;
             
-            if( _request.webRequest.result != UnityWebRequest.Result.Success )
+            if( _www.result != UnityWebRequest.Result.Success )
             {
-                this.Error( _request.webRequest.error );
+                this.Error( $"Read file failed: '{_url}': {_www.error}" );
                 return;
             }
             
-            this.Complete( _request.webRequest.downloadHandler.data );
+            this.Complete( _www.downloadHandler.data );
+            
+            _www.Dispose();
+            _www = null;
         }
     }
 }

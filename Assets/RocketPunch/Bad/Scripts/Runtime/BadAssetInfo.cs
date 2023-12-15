@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using RocketPunch.Bad;
-using RocketPunch.Bad.Operations;
 using UnityEngine;
 
 namespace RocketPunch.Bad

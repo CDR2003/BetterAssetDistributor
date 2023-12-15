@@ -7,5 +7,7 @@ namespace RocketPunch.Bad
     public class BadAssetGroupDef : ScriptableObject
     {
         public List<Object> assets;
+
+        public BadAssetLocation location;
     }
 }

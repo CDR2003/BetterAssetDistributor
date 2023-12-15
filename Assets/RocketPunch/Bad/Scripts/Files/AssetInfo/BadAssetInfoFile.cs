@@ -17,7 +17,7 @@ namespace RocketPunch.Bad
             foreach( var group in groups )
             {
                 var bundle = new BadBundleInfoChunk();
-                var path = Path.Combine( outputPath, group.name );
+                var path = Path.Join( outputPath, group.name );
                 bundle.name = group.name;
                 bundle.hash = BadHashUtility.ComputeXXHash( path, out bundle.size );
                 file.bundles.Add( bundle.name, bundle );
@@ -46,6 +46,17 @@ namespace RocketPunch.Bad
         public static BadAssetInfoFile ReadFromFile( string path )
         {
             using var file = new BadStringIndexedFile( path );
+            return ReadFromFile( file );
+        }
+
+        public static BadAssetInfoFile ReadFromFile( byte[] content )
+        {
+            using var file = new BadStringIndexedFile( content );
+            return ReadFromFile( file );
+        }
+
+        public static BadAssetInfoFile ReadFromFile( BadStringIndexedFile file )
+        {
             var result = new BadAssetInfoFile();
             
             var bundleCount = file.ReadInt();
@@ -63,7 +74,7 @@ namespace RocketPunch.Bad
                 asset.Read( file );
                 result.assets.Add( asset.guid, asset );
             }
-            
+
             return result;
         }
 
