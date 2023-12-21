@@ -15,5 +15,16 @@ namespace RocketPunch.Bad
             var json = System.Text.Encoding.UTF8.GetString( content );
             return JsonUtility.FromJson<BadVersionInfo>( json );
         }
+        
+        public void WriteToFile( string path )
+        {
+            var json = JsonUtility.ToJson( this );
+            System.IO.File.WriteAllText( path, json );
+        }
+
+        public BadVersion GetVersion()
+        {
+            return BadVersion.Parse( this.version );
+        }
     }
 }

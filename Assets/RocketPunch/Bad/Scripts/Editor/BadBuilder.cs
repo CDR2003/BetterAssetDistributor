@@ -16,14 +16,15 @@ namespace RocketPunch.Bad
         {
         }
         
-        public void Build( List<BadAssetGroup> groups, string outputPath )
+        public void Build( List<BadAssetGroup> groups )
         {
             this.RecalculateDependencies( groups );
-            this.EnsureDirectory( outputPath );
+            this.EnsureDirectory( BadSettings.instance.buildPath );
             this.GenerateVersionId();
-            this.BuildAssetBundles( groups, outputPath );
-            this.GenerateAssetInfo( groups, outputPath );
-            this.GenerateAssetState( groups, outputPath );
+            this.GenerateAssetState( groups );
+            this.BuildAssetBundles( groups );
+            this.MoveLocalBundles( groups );
+            this.MoveRemoteBundles( groups );
         }
 
         private void RecalculateDependencies( List<BadAssetGroup> groups )
@@ -64,10 +65,10 @@ namespace RocketPunch.Bad
             }
         }
 
-        private void GenerateAssetState( List<BadAssetGroup> groups, string outputPath )
+        private void GenerateAssetState( List<BadAssetGroup> groups )
         {
             var file = BadAssetStateFile.Create( groups );
-            var filePath = Path.Join( outputPath, $"asset_state_{_versionId}.bad" );
+            var filePath = Path.Join( BadSettings.instance.buildPath, $"asset_state_{_versionId}.bad" );
             file.WriteToFile( filePath );
         }
 
@@ -76,18 +77,52 @@ namespace RocketPunch.Bad
             _versionId = DateTime.Now.ToString( "yyyyMMddHHmmss" );
         }
 
-        private void GenerateAssetInfo( List<BadAssetGroup> groups, string outputPath )
+        private void BuildAssetBundles( List<BadAssetGroup> groups )
         {
-            var file = BadAssetInfoFile.Create( groups, outputPath );
-            var filePath = Path.Join( outputPath, $"asset_info_{_versionId}.bad" );
-            file.WriteToFile( filePath );
+            var buildPath = BadSettings.instance.buildPath;
+            var bundleBuilds = groups.ConvertAll( g => g.ToAssetBundleBuild() ).ToArray();
+            var manifest = BuildPipeline.BuildAssetBundles( buildPath, bundleBuilds, BuildAssetBundleOptions.DeterministicAssetBundle, BuildTarget.StandaloneWindows64 );
+            Assert.IsNotNull( manifest );
         }
 
-        private void BuildAssetBundles( List<BadAssetGroup> groups, string outputPath )
+        private void MoveLocalBundles( List<BadAssetGroup> groups )
         {
-            var bundleBuilds = groups.ConvertAll( g => g.ToAssetBundleBuild() ).ToArray();
-            var manifest = BuildPipeline.BuildAssetBundles( outputPath, bundleBuilds, BuildAssetBundleOptions.DeterministicAssetBundle, BuildTarget.StandaloneWindows64 );
-            Assert.IsNotNull( manifest );
+            var localGroups = groups.FindAll( g => g.location == BadAssetLocation.Local );
+            foreach( var group in localGroups )
+            {
+                var sourcePath = BadPathHelper.GetBuildPath( group.name );
+                var destinationPath = BadPathHelper.GetLocalAssetPath( group.name );
+                File.Move( sourcePath, destinationPath );
+            }
+            
+            var path = Path.Join( Application.streamingAssetsPath, BadSettings.instance.localAssetPath );
+            this.GenerateAssetInfo( localGroups, path );
+            this.GenerateVersionInfo( localGroups, path );
+        }
+
+        private void MoveRemoteBundles( List<BadAssetGroup> groups )
+        {
+            var remoteGroups = groups.FindAll( g => g.location == BadAssetLocation.Remote );
+            foreach( var group in remoteGroups )
+            {
+                var sourcePath = BadPathHelper.GetBuildPath( group.name );
+                var destinationPath = BadPathHelper.GetRemoteBuildPath( group.name );
+                File.Move( sourcePath, destinationPath );
+            }
+            
+            this.GenerateAssetInfo( remoteGroups, BadSettings.instance.remoteBuildPath );
+            this.GenerateVersionInfo( remoteGroups, BadSettings.instance.remoteBuildPath );
+        }
+
+        private void GenerateVersionInfo( List<BadAssetGroup> groups, string outputPath )
+        {
+            var newVersion = BadSettings.instance.version.GetNextVersion();
+            BadSettings.instance.version = newVersion;
+            
+            var versionInfo = new BadVersionInfo();
+            versionInfo.version = newVersion.ToString();
+            versionInfo.assetInfoFilePath = $"asset_info_{_versionId}.bad";
+            versionInfo.WriteToFile( Path.Join( outputPath, BadVersionInfo.Filename ) );
         }
 
         private void EnsureDirectory( string outputPath )
@@ -96,6 +131,13 @@ namespace RocketPunch.Bad
             {
                 Directory.CreateDirectory( outputPath );
             }
+        }
+        
+        private void GenerateAssetInfo( List<BadAssetGroup> groups, string outputPath )
+        {
+            var file = BadAssetInfoFile.Create( groups, outputPath );
+            var filePath = Path.Join( outputPath, $"asset_info_{_versionId}.bad" );
+            file.WriteToFile( filePath );
         }
     }
 }

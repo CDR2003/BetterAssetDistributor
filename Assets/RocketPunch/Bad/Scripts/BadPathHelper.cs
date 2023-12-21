@@ -5,6 +5,12 @@ namespace RocketPunch.Bad
 {
     public static class BadPathHelper
     {
+        public static string GetBuildPath( string name )
+        {
+            var settings = BadSettings.instance;
+            return Path.Join( settings.buildPath, name );
+        }
+        
         public static string GetLocalAssetPath( string name )
         {
             var settings = BadSettings.instance;
@@ -15,6 +21,12 @@ namespace RocketPunch.Bad
         {
             var settings = BadSettings.instance;
             return Path.Join( Application.persistentDataPath, Path.Join( settings.localDownloadPath, name ) );
+        }
+
+        public static string GetRemoteBuildPath( string name )
+        {
+            var settings = BadSettings.instance;
+            return Path.Join( settings.remoteBuildPath, name );
         }
         
         public static string GetRemoteAssetPath( string name )

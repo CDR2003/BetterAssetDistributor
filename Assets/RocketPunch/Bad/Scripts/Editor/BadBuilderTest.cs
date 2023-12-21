@@ -20,7 +20,7 @@ namespace RocketPunch.Bad
             
             var groups = GetAssetGroups();
             var builder = new BadBuilder();
-            builder.Build( groups, "AssetBundles" );
+            builder.Build( groups );
         }
 
         [MenuItem( "BAD/Check Modifications" )]
