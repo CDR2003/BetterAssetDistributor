@@ -3,8 +3,10 @@
     public class BadCheckVersionOperation : BadOperation
     {
         public BadVersionInfo localVersion { get; private set; }
-
+        
         public BadVersionInfo remoteVersion { get; private set; }
+
+        public BadVersionInfoSource localVersionSource => _localVersionOperation.source;
 
         private BadCheckLocalVersionOperation _localVersionOperation;
         

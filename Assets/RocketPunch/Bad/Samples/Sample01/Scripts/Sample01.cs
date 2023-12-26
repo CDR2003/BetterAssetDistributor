@@ -12,33 +12,34 @@ namespace RocketPunch.Bad.Samples
         private BadLoadAssetOperation _loadOperation;
 
         private Stack<GameObject> _cubes = new();
-        
+
         public void Start()
         {
             BadSettings.Load();
-            
-            var operation = new BadCheckVersionOperation();
-            operation.complete += this.OnCheckVersionCompleted;
-            operation.error += this.OnCheckVersionError;
-            operation.Run();
+
+            var updateManager = BadUpdateManager.instance;
+            updateManager.versionCheck += this.OnVersionCheck;
+            updateManager.error += this.OnError;
+            updateManager.CheckVersion();
         }
 
-        private void OnCheckVersionError( BadOperation operation, string message )
+        private void OnError( string message )
         {
-            operation.complete -= this.OnCheckVersionCompleted;
-            operation.error -= this.OnCheckVersionError;
+            var updateManager = BadUpdateManager.instance;
+            updateManager.versionCheck -= this.OnVersionCheck;
+            updateManager.error -= this.OnError;
             
             Debug.LogError( message );
         }
 
-        private void OnCheckVersionCompleted( BadOperation operation )
+        private void OnVersionCheck( BadVersionCheckResult result )
         {
-            operation.complete -= this.OnCheckVersionCompleted;
-            operation.error -= this.OnCheckVersionError;
+            var updateManager = BadUpdateManager.instance;
+            updateManager.versionCheck -= this.OnVersionCheck;
+            updateManager.error -= this.OnError;
             
-            var checkVersionOperation = operation as BadCheckVersionOperation;
-            Debug.Log( $"Local version: {checkVersionOperation.localVersion.version}" );
-            Debug.Log( $"Remote version: {checkVersionOperation.remoteVersion.version}" );
+            Debug.Log( $"Version check completed. \nLocal version: {result.localVersion} \nRemote version: {result.remoteVersion}" );
+            Debug.Log( $"Download size: {result.downloadedSize}B / {result.totalDownloadSize}B" );
         }
 
         private void OnLoadOperationCompleted( BadOperation operation )

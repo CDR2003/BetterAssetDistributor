@@ -68,7 +68,8 @@ namespace RocketPunch.Bad
         private void GenerateAssetState( List<BadAssetGroup> groups )
         {
             var file = BadAssetStateFile.Create( groups );
-            var filePath = Path.Join( BadSettings.instance.buildPath, $"asset_state_{_versionId}.bad" );
+            var filename = BadAssetStateFile.GetFilename( _versionId );
+            var filePath = Path.Join( BadSettings.instance.buildPath, filename );
             file.WriteToFile( filePath );
         }
 
@@ -121,7 +122,7 @@ namespace RocketPunch.Bad
             
             var versionInfo = new BadVersionInfo();
             versionInfo.version = newVersion.ToString();
-            versionInfo.assetInfoFilePath = $"asset_info_{_versionId}.bad";
+            versionInfo.assetInfoFilePath = BadAssetInfoFile.GetFilename( _versionId );
             versionInfo.WriteToFile( Path.Join( outputPath, BadVersionInfo.Filename ) );
         }
 
@@ -136,7 +137,8 @@ namespace RocketPunch.Bad
         private void GenerateAssetInfo( List<BadAssetGroup> groups, string outputPath )
         {
             var file = BadAssetInfoFile.Create( groups, outputPath );
-            var filePath = Path.Join( outputPath, $"asset_info_{_versionId}.bad" );
+            var filename = BadAssetInfoFile.GetFilename( _versionId );
+            var filePath = Path.Join( outputPath, filename );
             file.WriteToFile( filePath );
         }
     }

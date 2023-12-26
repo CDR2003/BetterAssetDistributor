@@ -1,18 +1,25 @@
-﻿namespace RocketPunch.Bad
+﻿using System;
+
+namespace RocketPunch.Bad
 {
     public class BadUpdateManager
     {
-        private BadVersionInfo _localVersionInfo;
+        public static BadUpdateManager instance { get; } = new BadUpdateManager();
         
-        private BadVersionInfo _remoteVersionInfo;
+        public event Action<BadVersionCheckResult> versionCheck;
+
+        public event Action<string> error;
         
-        public BadCheckVersionOperation CheckVersion()
+        private BadVersionInfo _localVersion;
+        
+        private BadVersionInfo _remoteVersion;
+        
+        public void CheckVersion()
         {
             var operation = new BadCheckVersionOperation();
             operation.complete += this.OnCheckVersionCompleted;
             operation.error += this.OnCheckVersionError;
             BadOperationScheduler.instance.EnqueueOperation( operation );
-            return operation;
         }
 
         private void OnCheckVersionError( BadOperation operation, string message )
@@ -26,9 +33,43 @@
             operation.complete -= this.OnCheckVersionCompleted;
             operation.error -= this.OnCheckVersionError;
             
-            var checkVersionOperation = operation as BadCheckVersionOperation;
-            _localVersionInfo = checkVersionOperation.localVersion;
-            _remoteVersionInfo = checkVersionOperation.remoteVersion;
+            var checkVersionOperation = (BadCheckVersionOperation)operation;
+            _localVersion = checkVersionOperation.localVersion;
+            _remoteVersion = checkVersionOperation.remoteVersion;
+            if( _localVersion.version == _remoteVersion.version )
+            {
+                this.versionCheck?.Invoke( new BadVersionCheckResult( _remoteVersion.version ) );
+                return;
+            }
+            
+            this.GenerateDownloadList();
+        }
+        
+        private void GenerateDownloadList()
+        {
+            var operation = new BadGenerateDownloadListOperation( _localVersion.assetInfoFilePath, _remoteVersion.assetInfoFilePath );
+            operation.complete += this.OnGenerateDownloadListCompleted;
+            operation.error += this.OnGenerateDownloadListError;
+            operation.Run();
+        }
+        
+        private void OnGenerateDownloadListError( BadOperation operation, string message )
+        {
+            operation.complete -= this.OnGenerateDownloadListCompleted;
+            operation.error -= this.OnGenerateDownloadListError;
+            this.error?.Invoke( message );
+        }
+        
+        private void OnGenerateDownloadListCompleted( BadOperation operation )
+        {
+            operation.complete -= this.OnGenerateDownloadListCompleted;
+            operation.error -= this.OnGenerateDownloadListError;
+
+            var downloadListOperation = (BadGenerateDownloadListOperation)operation;
+            var downloadList = downloadListOperation.value;
+            var totalDownloadSize = downloadList.CalculateTotalDownloadSize();
+            var downloadedSize = downloadList.CalculateDownloadedSize();
+            this.versionCheck?.Invoke( new BadVersionCheckResult( _localVersion.version, _remoteVersion.version, totalDownloadSize, downloadedSize ) );
         }
     }
 }

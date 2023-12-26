@@ -2,6 +2,8 @@
 {
     public class BadCheckLocalVersionOperation : BadOperation<BadVersionInfo>
     {
+        public BadVersionInfoSource source { get; private set; }
+        
         private BadReadFileOperation _checkDownloadFolderOperation;
         
         private BadReadFileOperation _checkLocalAssetOperation;
@@ -21,6 +23,7 @@
 
             var versionInfo = BadVersionInfo.ReadFromBytes( _checkDownloadFolderOperation.value );
             versionInfo.assetInfoFilePath = BadPathHelper.GetLocalDownloadPath( versionInfo.assetInfoFilePath );
+            this.source = BadVersionInfoSource.Download;
             this.Complete( versionInfo );
         }
 
@@ -43,6 +46,7 @@
 
             var versionInfo = BadVersionInfo.ReadFromBytes( _checkLocalAssetOperation.value );
             versionInfo.assetInfoFilePath = BadPathHelper.GetLocalAssetPath( versionInfo.assetInfoFilePath );
+            this.source = BadVersionInfoSource.Local;
             this.Complete( versionInfo );
         }
 

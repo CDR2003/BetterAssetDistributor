@@ -32,7 +32,7 @@ namespace RocketPunch.Bad
         public static string GetRemoteAssetPath( string name )
         {
             var settings = BadSettings.instance;
-            return Path.Join( settings.serverUrl, name );
+            return Path.Join( settings.serverUrl, name ).Replace( "\\", "/" );
         }
     }
 }

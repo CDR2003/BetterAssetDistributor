@@ -6,6 +6,11 @@ namespace RocketPunch.Bad
     {
         public Dictionary<string, BadAssetStateChunk> assets = new();
 
+        public static string GetFilename( string versionId )
+        {
+            return $"asset_state_{versionId}.bad";
+        }
+
         public static BadAssetStateFile Create( List<BadAssetGroup> groups )
         {
             var file = new BadAssetStateFile();

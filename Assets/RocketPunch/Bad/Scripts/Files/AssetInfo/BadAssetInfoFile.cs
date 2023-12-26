@@ -11,6 +11,11 @@ namespace RocketPunch.Bad
         
         public Dictionary<string, BadBundleInfoChunk> bundles = new();
 
+        public static string GetFilename( string versionId )
+        {
+            return $"asset_info_{versionId}.bad";
+        }
+
         public static BadAssetInfoFile Create( List<BadAssetGroup> groups, string outputPath )
         {
             var file = new BadAssetInfoFile();
