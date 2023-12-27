@@ -16,6 +16,7 @@ namespace RocketPunch.Bad.Samples
         public void Start()
         {
             BadSettings.Load();
+            BadPathHelper.MakeDownloadFolder();
 
             var updateManager = BadUpdateManager.instance;
             updateManager.versionCheck += this.OnVersionCheck;
@@ -39,7 +40,50 @@ namespace RocketPunch.Bad.Samples
             updateManager.error -= this.OnError;
             
             Debug.Log( $"Version check completed. \nLocal version: {result.localVersion} \nRemote version: {result.remoteVersion}" );
+
+            if( result.needsUpdate == false )
+            {
+                this.LoadAssetLibrary();
+                return;
+            }
+            
             Debug.Log( $"Download size: {result.downloadedSize}B / {result.totalDownloadSize}B" );
+
+            var downloader = updateManager.StartDownload();
+            downloader.complete += this.OnDownloadComplete;
+            downloader.error += this.OnDownloadError;
+        }
+
+        private void OnDownloadError( string message )
+        {
+            var downloader = BadUpdateManager.instance.StartDownload();
+            downloader.complete -= this.OnDownloadComplete;
+            downloader.error -= this.OnDownloadError;
+            
+            Debug.LogError( message );
+        }
+
+        private void OnDownloadComplete()
+        {
+            var downloader = BadUpdateManager.instance.StartDownload();
+            downloader.complete -= this.OnDownloadComplete;
+            downloader.error -= this.OnDownloadError;
+            
+            Debug.Log( $"Download completed! Please open folder {Application.persistentDataPath} to check out." );
+            
+            this.LoadAssetLibrary();
+        }
+
+        private void LoadAssetLibrary()
+        {
+            BadLoader.initializeComplete += this.OnInitializeComplete;
+            BadLoader.Initialize();
+        }
+
+        private void OnInitializeComplete()
+        {
+            BadLoader.initializeComplete -= this.OnInitializeComplete;
+            Debug.Log( "BadLoader initialized.");
         }
 
         private void OnLoadOperationCompleted( BadOperation operation )

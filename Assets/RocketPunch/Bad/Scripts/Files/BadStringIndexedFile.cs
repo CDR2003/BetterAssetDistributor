@@ -75,7 +75,7 @@ namespace RocketPunch.Bad
 
         public void WriteToFile( string path )
         {
-            var file = File.Open( path, FileMode.Create );
+            var file = File.Open( path, FileMode.OpenOrCreate );
             var fileWriter = new BinaryWriter( file );
             fileWriter.Write( _strings.Count );
             foreach( var str in _strings )
@@ -86,6 +86,24 @@ namespace RocketPunch.Bad
             fileWriter.Write( _content.GetBuffer(), 0, (int)_content.Length );
             fileWriter.Close();
             file.Close();
+        }
+
+        public void WriteToFileAsync( string path )
+        {
+            var file = new FileStream( path, FileMode.OpenOrCreate );
+            var fileWriter = new BinaryWriter( file );
+            fileWriter.Write( _strings.Count );
+            foreach( var str in _strings )
+            {
+                fileWriter.Write( str );
+            }
+            
+            var task = file.WriteAsync( _content.GetBuffer(), 0, (int)_content.Length );
+            task.GetAwaiter().OnCompleted( () =>
+            {
+                fileWriter.Close();
+                file.Close();
+            } );
         }
 
         public bool ReadBool()

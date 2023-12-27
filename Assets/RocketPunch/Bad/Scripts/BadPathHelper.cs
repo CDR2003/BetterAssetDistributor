@@ -34,5 +34,14 @@ namespace RocketPunch.Bad
             var settings = BadSettings.instance;
             return Path.Join( settings.serverUrl, name ).Replace( "\\", "/" );
         }
+        
+        public static void MakeDownloadFolder()
+        {
+            var path = Path.Join( Application.persistentDataPath, BadSettings.instance.localDownloadPath );
+            if( Directory.Exists( path ) == false )
+            {
+                Directory.CreateDirectory( path );
+            }
+        }
     }
 }

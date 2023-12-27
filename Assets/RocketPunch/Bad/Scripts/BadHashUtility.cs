@@ -13,7 +13,12 @@ namespace RocketPunch.Bad
         {
             var bytes = File.ReadAllBytes( path );
             size = bytes.Length;
-            return _xxhasher.ComputeHash( bytes );
+            return ComputeXXHash( bytes );
+        }
+
+        public static byte[] ComputeXXHash( byte[] data )
+        {
+            return _xxhasher.ComputeHash( data );
         }
         
         public static string ComputeHash128( string path )

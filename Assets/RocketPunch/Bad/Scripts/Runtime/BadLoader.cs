@@ -7,6 +7,36 @@ namespace RocketPunch.Bad
 {
     public static class BadLoader
     {
+        public static event Action initializeComplete; 
+        
+        public static void Initialize()
+        {
+            var operation = new BadCheckLocalVersionOperation();
+            operation.complete += OnLocalVersionLoaded;
+            operation.error += OnLoadVersionError;
+            operation.Run();
+        }
+
+        private static void OnLoadVersionError( BadOperation operation, string message )
+        {
+            operation.complete -= OnLocalVersionLoaded;
+            operation.error -= OnLoadVersionError;
+
+            throw new Exception( message );
+        }
+
+        private static void OnLocalVersionLoaded( BadOperation operation )
+        {
+            operation.complete -= OnLocalVersionLoaded;
+            operation.error -= OnLoadVersionError;
+            
+            var localVersion = (BadCheckLocalVersionOperation)operation;
+            var versionInfo = localVersion.value;
+            BadAssetLibrary.Load( versionInfo.assetInfoFilePath );
+            
+            initializeComplete?.Invoke();
+        }
+
         public static T Load<T>( string name ) where T : UnityEngine.Object
         {
             var asset = BadAssetLibrary.instance.GetAssetInfo( name );

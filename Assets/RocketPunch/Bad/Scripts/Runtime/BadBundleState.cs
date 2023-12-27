@@ -2,8 +2,6 @@
 {
     public enum BadBundleState
     {
-        NotDownloaded,
-        Downloading,
         Downloaded,
         Loading,
         Loaded,

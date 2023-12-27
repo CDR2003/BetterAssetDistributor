@@ -25,6 +25,7 @@ namespace RocketPunch.Bad
                 var path = Path.Join( outputPath, group.name );
                 bundle.name = group.name;
                 bundle.hash = BadHashUtility.ComputeXXHash( path, out bundle.size );
+                bundle.location = BadBundleLocation.Local;
                 file.bundles.Add( bundle.name, bundle );
             }
 
@@ -100,6 +101,24 @@ namespace RocketPunch.Bad
             }
             
             file.WriteToFile( path );
+        }
+
+        public void UpdateBundleLocations( BadAssetInfoFile baseFile )
+        {
+            foreach( var pair in this.bundles )
+            {
+                var name = pair.Key;
+                var bundle = pair.Value;
+                var baseBundle = baseFile.bundles.GetValueOrDefault( name );
+                if( baseBundle != null && BadHashUtility.AreEqual( bundle.hash, baseBundle.hash ) )
+                {
+                    bundle.location = baseBundle.location;
+                }
+                else
+                {
+                    bundle.location = BadBundleLocation.Download;
+                }
+            }
         }
     }
 }

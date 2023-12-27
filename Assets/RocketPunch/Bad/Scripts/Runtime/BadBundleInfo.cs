@@ -10,9 +10,27 @@ namespace RocketPunch.Bad
         
         public readonly byte[] hash;
 
+        public readonly BadBundleLocation location;
+
         public BadBundleState state;
 
         public AssetBundle bundle;
+
+        public string path
+        {
+            get
+            {
+                switch( this.location )
+                {
+                    case BadBundleLocation.Local:
+                        return BadPathHelper.GetLocalAssetPath( this.name );
+                    case BadBundleLocation.Download:
+                        return BadPathHelper.GetLocalDownloadPath( this.name );
+                    default:
+                        throw new System.Exception( $"Unknown bundle location: {this.location}" );
+                }
+            }
+        }
 
         public bool hasLoadedAssets => _assets.Any( a => a.loadedInfo?.referenceCount > 0 );
         
@@ -20,10 +38,11 @@ namespace RocketPunch.Bad
         
         private readonly HashSet<BadAssetInfo> _assets = new();
 
-        public BadBundleInfo( string name, byte[] hash )
+        public BadBundleInfo( string name, byte[] hash, BadBundleLocation location )
         {
             this.name = name;
             this.hash = hash;
+            this.location = location;
         }
         
         public void Load()
@@ -33,8 +52,7 @@ namespace RocketPunch.Bad
                 return;
             }
             
-            var path = BadPathHelper.GetLocalAssetPath( this.name );
-            this.bundle = AssetBundle.LoadFromFile( path );
+            this.bundle = AssetBundle.LoadFromFile( this.path );
             if( !this.bundle )
             {
                 throw new System.Exception( $"Failed to load bundle '{this.name}'" );

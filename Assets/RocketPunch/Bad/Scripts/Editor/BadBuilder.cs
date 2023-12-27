@@ -23,8 +23,31 @@ namespace RocketPunch.Bad
             this.GenerateVersionId();
             this.GenerateAssetState( groups );
             this.BuildAssetBundles( groups );
+            this.GenerateAssetInfo( groups, BadSettings.instance.buildPath );
             this.MoveLocalBundles( groups );
             this.MoveRemoteBundles( groups );
+            this.MoveRemoteAssetInfo();
+            this.DeleteManifests();
+        }
+
+        private void DeleteManifests()
+        {
+            var files = Directory.GetFiles( BadSettings.instance.buildPath );
+            foreach( var file in files )
+            {
+                if( file.EndsWith( ".bad" ) == false )
+                {
+                    File.Delete( file );
+                }
+            }
+        }
+
+        private void MoveRemoteAssetInfo()
+        {
+            var filename = BadAssetInfoFile.GetFilename( _versionId );
+            var sourcePath = BadPathHelper.GetBuildPath( filename );
+            var destinationPath = BadPathHelper.GetRemoteBuildPath( filename );
+            File.Move( sourcePath, destinationPath );
         }
 
         private void RecalculateDependencies( List<BadAssetGroup> groups )
@@ -93,12 +116,16 @@ namespace RocketPunch.Bad
             {
                 var sourcePath = BadPathHelper.GetBuildPath( group.name );
                 var destinationPath = BadPathHelper.GetLocalAssetPath( group.name );
+                if( File.Exists( destinationPath ) )
+                {
+                    File.Delete( destinationPath );
+                }
                 File.Move( sourcePath, destinationPath );
             }
             
             var path = Path.Join( Application.streamingAssetsPath, BadSettings.instance.localAssetPath );
             this.GenerateAssetInfo( localGroups, path );
-            this.GenerateVersionInfo( localGroups, path );
+            this.GenerateVersionInfo( path );
         }
 
         private void MoveRemoteBundles( List<BadAssetGroup> groups )
@@ -111,11 +138,10 @@ namespace RocketPunch.Bad
                 File.Move( sourcePath, destinationPath );
             }
             
-            this.GenerateAssetInfo( remoteGroups, BadSettings.instance.remoteBuildPath );
-            this.GenerateVersionInfo( remoteGroups, BadSettings.instance.remoteBuildPath );
+            this.GenerateVersionInfo( BadSettings.instance.remoteBuildPath );
         }
 
-        private void GenerateVersionInfo( List<BadAssetGroup> groups, string outputPath )
+        private void GenerateVersionInfo( string outputPath )
         {
             var newVersion = BadSettings.instance.version.GetNextVersion();
             BadSettings.instance.version = newVersion;

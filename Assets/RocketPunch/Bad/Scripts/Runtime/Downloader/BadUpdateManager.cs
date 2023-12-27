@@ -13,6 +13,8 @@ namespace RocketPunch.Bad
         private BadVersionInfo _localVersion;
         
         private BadVersionInfo _remoteVersion;
+
+        private BadDownloadListFile _downloadList;
         
         public void CheckVersion()
         {
@@ -22,10 +24,23 @@ namespace RocketPunch.Bad
             BadOperationScheduler.instance.EnqueueOperation( operation );
         }
 
+        public BadDownloader StartDownload()
+        {
+            if( _downloadList == null )
+            {
+                throw new Exception( "Download list is not generated yet. Please call CheckVersion() first." );
+            }
+            
+            var downloader = new BadDownloader( _downloadList, _remoteVersion );
+            downloader.Start();
+            return downloader;
+        }
+
         private void OnCheckVersionError( BadOperation operation, string message )
         {
             operation.complete -= this.OnCheckVersionCompleted;
             operation.error -= this.OnCheckVersionError;
+            this.error?.Invoke( message );
         }
 
         private void OnCheckVersionCompleted( BadOperation operation )
@@ -47,7 +62,7 @@ namespace RocketPunch.Bad
         
         private void GenerateDownloadList()
         {
-            var operation = new BadGenerateDownloadListOperation( _localVersion.assetInfoFilePath, _remoteVersion.assetInfoFilePath );
+            var operation = new BadGenerateDownloadListOperation( _localVersion.assetInfoFilePath, _remoteVersion.assetInfoFilePath, _remoteVersion );
             operation.complete += this.OnGenerateDownloadListCompleted;
             operation.error += this.OnGenerateDownloadListError;
             operation.Run();
@@ -66,9 +81,10 @@ namespace RocketPunch.Bad
             operation.error -= this.OnGenerateDownloadListError;
 
             var downloadListOperation = (BadGenerateDownloadListOperation)operation;
-            var downloadList = downloadListOperation.value;
-            var totalDownloadSize = downloadList.CalculateTotalDownloadSize();
-            var downloadedSize = downloadList.CalculateDownloadedSize();
+            _downloadList = downloadListOperation.value;
+            
+            var totalDownloadSize = _downloadList.CalculateTotalDownloadSize();
+            var downloadedSize = _downloadList.CalculateDownloadedSize();
             this.versionCheck?.Invoke( new BadVersionCheckResult( _localVersion.version, _remoteVersion.version, totalDownloadSize, downloadedSize ) );
         }
     }

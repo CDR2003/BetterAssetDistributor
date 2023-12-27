@@ -29,7 +29,7 @@ namespace RocketPunch.Bad
 
             _bundleInfo.state = BadBundleState.Loading;
 
-            var path = BadPathHelper.GetLocalAssetPath( _bundleInfo.name );
+            var path = _bundleInfo.path;
             _url = path;
             if( path.Contains( "://" ) == false && path.Contains( ":///" ) == false )
             {

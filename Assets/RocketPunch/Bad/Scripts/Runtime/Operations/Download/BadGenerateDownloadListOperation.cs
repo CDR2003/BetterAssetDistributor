@@ -5,15 +5,18 @@
         private readonly string _localAssetInfoPath;
         
         private readonly string _remoteAssetInfoPath;
+
+        private readonly BadVersionInfo _versionInfo;
         
         private BadReadAssetInfoFileOperation _localAssetInfoOperation;
         
         private BadReadAssetInfoFileOperation _remoteAssetInfoOperation;
         
-        public BadGenerateDownloadListOperation( string localAssetInfoPath, string remoteAssetInfoPath )
+        public BadGenerateDownloadListOperation( string localAssetInfoPath, string remoteAssetInfoPath, BadVersionInfo versionInfo )
         {
             _localAssetInfoPath = localAssetInfoPath;
             _remoteAssetInfoPath = remoteAssetInfoPath;
+            _versionInfo = versionInfo;
         }
         
         public override void Run()
@@ -36,7 +39,7 @@
             
             var localAssetInfo = _localAssetInfoOperation.value;
             var remoteAssetInfo = _remoteAssetInfoOperation.value;
-            var downloadList = BadDownloadListFile.Create( remoteAssetInfo, localAssetInfo );
+            var downloadList = BadDownloadListFile.Create( remoteAssetInfo, localAssetInfo, _versionInfo.version );
             this.Complete( downloadList );
         }
         

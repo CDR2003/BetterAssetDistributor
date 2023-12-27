@@ -102,7 +102,7 @@ namespace RocketPunch.Bad
 
         private void InitializeBundle( BadBundleInfoChunk bundle )
         {
-            var info = new BadBundleInfo( bundle.name, bundle.hash );
+            var info = new BadBundleInfo( bundle.name, bundle.hash, bundle.location );
             info.state = BadBundleState.Downloaded;
             _bundles.Add( info.name, info );
         }
