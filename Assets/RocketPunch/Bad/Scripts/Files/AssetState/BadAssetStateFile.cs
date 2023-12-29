@@ -28,7 +28,7 @@ namespace RocketPunch.Bad
 
         public static BadAssetStateFile ReadFromFile( string path )
         {
-            var file = new BadStringIndexedFile( path );
+            using var file = new BadStringIndexedFile( path );
             var assetStateFile = new BadAssetStateFile();
             
             var assetCount = file.ReadInt();

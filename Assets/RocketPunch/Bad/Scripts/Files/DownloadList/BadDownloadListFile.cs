@@ -37,7 +37,7 @@ namespace RocketPunch.Bad
         
         public static BadDownloadListFile ReadFromFile( string path )
         {
-            var file = new BadStringIndexedFile( path );
+            using var file = new BadStringIndexedFile( path );
             var downloadListFile = new BadDownloadListFile();
             downloadListFile.version = file.ReadString();
             

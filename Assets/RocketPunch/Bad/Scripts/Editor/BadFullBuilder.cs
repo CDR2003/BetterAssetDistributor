@@ -32,7 +32,7 @@ namespace RocketPunch.Bad
             this.MoveRemoteBundles( groups );
             this.MoveRemoteAssetInfo();
             this.DeleteManifests();
-            this.WriteAssetState( _assetState );
+            this.WriteAssetState( _assetState, true );
         }
 
         private void MoveLocalBundles( List<BadAssetGroup> groups )

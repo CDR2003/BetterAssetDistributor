@@ -45,25 +45,13 @@ namespace RocketPunch.Bad
                 }
             }
         }
-
-        private void ResetAssetGroups( List<BadAssetGroup> groups )
-        {
-            _assetGroups.Clear();
-            foreach( var group in groups )
-            {
-                foreach( var asset in group.assets )
-                {
-                    _assetGroups.Add( asset, group );
-                }
-            }
-        }
-
+        
         private BadAssetModificationState CheckAsset( BadAsset asset )
         {
             var group = _assetGroups.GetValueOrDefault( asset );
             return this.CheckAsset( asset, group );
         }
-
+        
         private BadAssetModificationState CheckAsset( BadAsset asset, BadAssetGroup rootAssetGroup )
         {
             var chunk = _assetState.assets.GetValueOrDefault( asset.guid );
@@ -98,6 +86,18 @@ namespace RocketPunch.Bad
             }
             
             return BadAssetModificationState.Identical;
+        }
+
+        private void ResetAssetGroups( List<BadAssetGroup> groups )
+        {
+            _assetGroups.Clear();
+            foreach( var group in groups )
+            {
+                foreach( var asset in group.assets )
+                {
+                    _assetGroups.Add( asset, group );
+                }
+            }
         }
     }
 }

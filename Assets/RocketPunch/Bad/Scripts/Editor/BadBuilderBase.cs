@@ -33,11 +33,17 @@ namespace RocketPunch.Bad
             return file;
         }
         
-        protected void WriteAssetState( BadAssetStateFile file )
+        protected void WriteAssetState( BadAssetStateFile file, bool writeToLocal )
         {
             var filename = BadAssetStateFile.GetFilename( _versionId );
-            var filePath = Path.Join( BadSettings.instance.buildPath, filename );
-            file.WriteToFile( filePath );
+            var buildPath = BadPathHelper.GetBuildPath( filename );
+            file.WriteToFile( buildPath );
+
+            if( writeToLocal )
+            {
+                var localPath = BadPathHelper.GetLocalAssetPath( filename );
+                file.WriteToFile( localPath );
+            }
         }
         
         protected BadAssetInfoFile GenerateAssetInfo( List<BadAssetGroup> groups, Dictionary<string, BadBundleStateChunk> bundleStates, string path )

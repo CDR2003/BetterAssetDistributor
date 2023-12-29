@@ -58,7 +58,7 @@ namespace RocketPunch.Bad
             AssetDatabase.SaveAssets();
             
             var groups = GetAssetGroups();
-            var builder = new BadUpdateBuilder( assetStateFilePath );
+            var builder = new BadIncrementalUpdateBuilder( assetStateFilePath );
             builder.Build( groups );
         }
 

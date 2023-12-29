@@ -80,7 +80,7 @@ namespace RocketPunch.Bad
             item.downloaded = true;
 
             var downloadListFilePath = BadPathHelper.GetLocalDownloadPath( BadDownloadListFile.Filename );
-            _file.WriteToFileAsync( downloadListFilePath );
+            _file.WriteToFile( downloadListFilePath );
             
             this.downloadedSize += item.size;
             this.DownloadNextFile();

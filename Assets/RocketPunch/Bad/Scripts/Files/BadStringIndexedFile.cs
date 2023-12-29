@@ -75,7 +75,7 @@ namespace RocketPunch.Bad
 
         public void WriteToFile( string path )
         {
-            var file = File.Open( path, FileMode.OpenOrCreate );
+            var file = File.Open( path, FileMode.Create );
             var fileWriter = new BinaryWriter( file );
             fileWriter.Write( _strings.Count );
             foreach( var str in _strings )
@@ -90,7 +90,7 @@ namespace RocketPunch.Bad
 
         public void WriteToFileAsync( string path )
         {
-            var file = new FileStream( path, FileMode.OpenOrCreate );
+            var file = new FileStream( path, FileMode.Create );
             var fileWriter = new BinaryWriter( file );
             fileWriter.Write( _strings.Count );
             foreach( var str in _strings )
