@@ -31,5 +31,10 @@ namespace RocketPunch.Bad
             };
         }
 #endif
+
+        public override string ToString()
+        {
+            return this.name;
+        }
     }
 }

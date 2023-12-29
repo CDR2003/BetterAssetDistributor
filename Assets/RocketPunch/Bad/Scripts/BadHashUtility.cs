@@ -8,6 +8,14 @@ namespace RocketPunch.Bad
     public static class BadHashUtility
     {
         private static readonly XXHash64 _xxhasher = XXHash64.Create();
+
+        public static byte[] ComputeAssetXXHash( string path )
+        {
+            var fileContent = File.ReadAllBytes( path );
+            var metaContent = File.ReadAllBytes( path + ".meta" );
+            var content = fileContent.Concat( metaContent ).ToArray();
+            return ComputeXXHash( content );
+        }
         
         public static byte[] ComputeXXHash( string path, out int size )
         {

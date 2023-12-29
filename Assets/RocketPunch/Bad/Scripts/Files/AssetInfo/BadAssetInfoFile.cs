@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -16,15 +17,33 @@ namespace RocketPunch.Bad
             return $"asset_info_{versionId}.bad";
         }
 
-        public static BadAssetInfoFile Create( List<BadAssetGroup> groups, string outputPath )
+        public static BadAssetInfoFile Create( List<BadAssetGroup> groups, Dictionary<string, BadBundleStateChunk> bundleStates, string bundlePath )
         {
             var file = new BadAssetInfoFile();
+            
             foreach( var group in groups )
             {
                 var bundle = new BadBundleInfoChunk();
-                var path = Path.Join( outputPath, group.name );
-                bundle.name = group.name;
-                bundle.hash = BadHashUtility.ComputeXXHash( path, out bundle.size );
+                
+                var path = Path.Join( bundlePath, group.name );
+                if( File.Exists( path ) )
+                {
+                    bundle.name = group.name;
+                    bundle.hash = BadHashUtility.ComputeXXHash( path, out bundle.size );
+                }
+                else
+                {
+                    var oldBundle = bundleStates.GetValueOrDefault( group.name );
+                    if( oldBundle == null )
+                    {
+                        throw new Exception( $"Cannot find old bundle '{group.name}' from asset state" );
+                    }
+                    
+                    bundle.name = oldBundle.name;
+                    bundle.hash = oldBundle.hash;
+                    bundle.size = oldBundle.size;
+                }
+                
                 bundle.location = BadBundleLocation.Local;
                 file.bundles.Add( bundle.name, bundle );
             }

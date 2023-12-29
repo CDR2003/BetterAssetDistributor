@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: BadSettings
   m_EditorClassIdentifier: 
   buildPath: AssetBundles
-  serverUrl: http://127.0.0.1:8080
+  serverUrl: http://192.168.1.160:8080
   localAssetPath: AssetBundles
   localDownloadPath: DownloadedAssetBundles
   remoteBuildPath: ServerFiles
   version:
     major: 1
     minor: 1
-    autoIncrement: 0
+    autoIncrement: 19

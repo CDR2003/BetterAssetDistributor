@@ -22,8 +22,13 @@ namespace RocketPunch.Bad
         {
             this.guid = guid;
             this.path = path;
-            this.hash = BadHashUtility.ComputeXXHash( this.path, out _ );
+            this.hash = BadHashUtility.ComputeAssetXXHash( this.path );
             this.name = Path.GetFileNameWithoutExtension( this.path );
+        }
+
+        public override string ToString()
+        {
+            return $"{this.name} ({this.guid})";
         }
     }
 }

@@ -1,12 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using UnityEditor;
-using UnityEditor.Build.Content;
-using UnityEditor.Build.Pipeline;
-using UnityEditor.Build.Pipeline.Interfaces;
-using UnityEditor.Build.Player;
 using UnityEngine;
 
 namespace RocketPunch.Bad
@@ -19,7 +14,7 @@ namespace RocketPunch.Bad
             BadAssetDatabase.Clear();
             
             var groups = GetAssetGroups();
-            var builder = new BadBuilder();
+            var builder = new BadFullBuilder();
             builder.Build( groups );
         }
 
@@ -28,11 +23,71 @@ namespace RocketPunch.Bad
         {
             BadAssetDatabase.Clear();
             
+            var assetStateFilePath = EditorUtility.OpenFilePanel( "Select Asset State File", "AssetBundles", "bad" );
+            if( assetStateFilePath.Length == 0 )
+            {
+                return;
+            }
+            
+            AssetDatabase.SaveAssets();
+            
             var groups = GetAssetGroups();
-            var modifiedAssets = BadModificationChecker.CheckForModifiedAssets( groups, "AssetBundles/asset_state_20231201174756.bad" );
+            var assetState = BadAssetStateFile.ReadFromFile( assetStateFilePath );
+            var checker = new BadModificationChecker( assetState );
+            checker.CheckForModifiedAssets( groups );
+
+            var modifiedAssets = checker.modifiedAssets;
+            Debug.Log( "Modified Assets: Total " + modifiedAssets.Count + " assets" );
             foreach( var asset in modifiedAssets )
             {
                 Debug.Log( asset.path );
+            }
+        }
+        
+        [MenuItem( "BAD/Build Update" )]
+        public static void BuildUpdate()
+        {
+            BadAssetDatabase.Clear();
+            
+            var assetStateFilePath = EditorUtility.OpenFilePanel( "Select Asset State File", "AssetBundles", "bad" );
+            if( assetStateFilePath.Length == 0 )
+            {
+                return;
+            }
+            
+            AssetDatabase.SaveAssets();
+            
+            var groups = GetAssetGroups();
+            var builder = new BadUpdateBuilder( assetStateFilePath );
+            builder.Build( groups );
+        }
+
+        [MenuItem( "BAD/Clear All Related Directories" )]
+        public static void ClearAllRelatedDirectories()
+        {
+            ClearDirectory( BadSettings.instance.buildPath );
+            ClearDirectory( BadSettings.instance.remoteBuildPath );
+            ClearDirectory( Path.Join( Application.streamingAssetsPath, BadSettings.instance.localAssetPath ) );
+            ClearDirectory( Path.Join( Application.persistentDataPath, BadSettings.instance.localDownloadPath ) );
+        }
+
+        private static void ClearDirectory( string path )
+        {
+            if( !Directory.Exists( path ) )
+            {
+                return;
+            }
+            
+            var files = Directory.GetFiles( path );
+            foreach( var file in files )
+            {
+                File.Delete( file );
+            }
+            
+            var directories = Directory.GetDirectories( path );
+            foreach( var directory in directories )
+            {
+                Directory.Delete( directory, true );
             }
         }
 

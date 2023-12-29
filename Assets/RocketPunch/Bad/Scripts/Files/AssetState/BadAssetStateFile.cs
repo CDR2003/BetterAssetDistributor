@@ -6,6 +6,8 @@ namespace RocketPunch.Bad
     {
         public Dictionary<string, BadAssetStateChunk> assets = new();
 
+        public Dictionary<string, BadBundleStateChunk> bundles = new();
+
         public static string GetFilename( string versionId )
         {
             return $"asset_state_{versionId}.bad";
@@ -28,6 +30,7 @@ namespace RocketPunch.Bad
         {
             var file = new BadStringIndexedFile( path );
             var assetStateFile = new BadAssetStateFile();
+            
             var assetCount = file.ReadInt();
             for( var i = 0; i < assetCount; i++ )
             {
@@ -36,17 +39,33 @@ namespace RocketPunch.Bad
                 assetStateFile.assets.Add( asset.guid, asset );
             }
             
+            var bundleCount = file.ReadInt();
+            for( var i = 0; i < bundleCount; i++ )
+            {
+                var bundle = new BadBundleStateChunk();
+                bundle.Read( file );
+                assetStateFile.bundles.Add( bundle.name, bundle );
+            }
+            
             return assetStateFile;
         }
         
         public void WriteToFile( string path )
         {
             using var file = new BadStringIndexedFile();
+            
             file.Write( this.assets.Count );
             foreach( var pair in this.assets )
             {
                 pair.Value.Write( file );
             }
+            
+            file.Write( this.bundles.Count );
+            foreach( var pair in this.bundles )
+            {
+                pair.Value.Write( file );
+            }
+            
             file.WriteToFile( path );
         }
 
@@ -70,39 +89,12 @@ namespace RocketPunch.Bad
             }
         }
 
-        public BadAssetModificationState CheckModification( BadAsset newAsset )
+        public void CombineBundleStates( Dictionary<string, BadBundleStateChunk> newBundleStates )
         {
-            var oldAsset = this.assets.GetValueOrDefault( newAsset.guid );
-            if( oldAsset == null )
+            foreach( var pair in newBundleStates )
             {
-                return BadAssetModificationState.BrandNew;
+                this.bundles[pair.Key] = pair.Value;
             }
-            
-            if( BadHashUtility.AreEqual( oldAsset.hash, newAsset.hash ) == false )
-            {
-                return BadAssetModificationState.Modified;
-            }
-
-            return this.CheckDependencyModification( newAsset, oldAsset );
-        }
-
-        private BadAssetModificationState CheckDependencyModification( BadAsset newAsset, BadAssetStateChunk oldAsset )
-        {
-            if( newAsset.dependencies.Count != oldAsset.dependencies.Count )
-            {
-                return BadAssetModificationState.Modified;
-            }
-            
-            foreach( var newDependency in newAsset.dependencies )
-            {
-                var state = this.CheckModification( newDependency );
-                if( state != BadAssetModificationState.Identical )
-                {
-                    return BadAssetModificationState.Modified;
-                }
-            }
-
-            return BadAssetModificationState.Identical;
         }
     }
 }
