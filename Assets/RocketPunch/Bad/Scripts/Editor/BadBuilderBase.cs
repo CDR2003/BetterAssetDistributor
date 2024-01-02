@@ -27,10 +27,7 @@ namespace RocketPunch.Bad
         
         protected BadAssetStateFile GenerateAssetState( List<BadAssetGroup> groups )
         {
-            var file = BadAssetStateFile.Create( groups );
-            var filename = BadAssetStateFile.GetFilename( _versionId );
-            var filePath = Path.Join( BadSettings.instance.buildPath, filename );
-            return file;
+            return BadAssetStateFile.Create( groups );
         }
         
         protected void WriteAssetState( BadAssetStateFile file, bool writeToLocal )

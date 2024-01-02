@@ -5,17 +5,23 @@ namespace RocketPunch.Bad
     public class BadUpdateManager
     {
         public static BadUpdateManager instance { get; } = new BadUpdateManager();
-        
+
         public event Action<BadVersionCheckResult> versionCheck;
 
         public event Action<string> error;
-        
+
         private BadVersionInfo _localVersion;
-        
+
         private BadVersionInfo _remoteVersion;
 
         private BadDownloadListFile _downloadList;
-        
+
+        public void Initialize()
+        {
+            BadSettings.Load();
+            BadPathHelper.MakeDownloadFolder();
+        }
+
         public void CheckVersion()
         {
             var operation = new BadCheckVersionOperation();
