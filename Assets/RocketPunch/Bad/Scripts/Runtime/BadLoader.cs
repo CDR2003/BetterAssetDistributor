@@ -11,6 +11,8 @@ namespace RocketPunch.Bad
         
         public static void Initialize()
         {
+            Caching.ClearCache();
+            
             var operation = new BadCheckLocalVersionOperation();
             operation.complete += OnLocalVersionLoaded;
             operation.error += OnLoadVersionError;

@@ -11,8 +11,6 @@ namespace RocketPunch.Bad.Samples
 
         private BadLoadAssetOperation _loadOperation;
 
-        private BadDownloader _downloader;
-
         private Stack<GameObject> _cubes = new();
 
         public void Start()
@@ -51,23 +49,25 @@ namespace RocketPunch.Bad.Samples
             
             Debug.Log( $"Download size: {result.downloadedSize}B / {result.totalDownloadSize}B" );
 
-            _downloader = updateManager.StartDownload();
-            _downloader.complete += this.OnDownloadComplete;
-            _downloader.error += this.OnDownloadError;
+            var downloader = updateManager.StartDownload();
+            downloader.complete += this.OnDownloadComplete;
+            downloader.error += this.OnDownloadError;
         }
 
         private void OnDownloadError( string message )
         {
-            _downloader.complete -= this.OnDownloadComplete;
-            _downloader.error -= this.OnDownloadError;
+            var downloader = BadUpdateManager.instance.StartDownload();
+            downloader.complete -= this.OnDownloadComplete;
+            downloader.error -= this.OnDownloadError;
             
             Debug.LogError( message );
         }
 
         private void OnDownloadComplete()
         {
-            _downloader.complete -= this.OnDownloadComplete;
-            _downloader.error -= this.OnDownloadError;
+            var downloader = BadUpdateManager.instance.StartDownload();
+            downloader.complete -= this.OnDownloadComplete;
+            downloader.error -= this.OnDownloadError;
             
             Debug.Log( $"Download completed! Please open folder {Application.persistentDataPath} to check out." );
             

@@ -49,16 +49,11 @@ namespace RocketPunch.Bad
         private BadAssetModificationState CheckAsset( BadAsset asset )
         {
             var group = _assetGroups.GetValueOrDefault( asset );
-            return this.CheckAsset( asset, group, new HashSet<BadAsset>() );
+            return this.CheckAsset( asset, group );
         }
         
-        private BadAssetModificationState CheckAsset( BadAsset asset, BadAssetGroup rootAssetGroup, HashSet<BadAsset> checkedAssets )
+        private BadAssetModificationState CheckAsset( BadAsset asset, BadAssetGroup rootAssetGroup )
         {
-            if( checkedAssets.Add( asset ) == false )
-            {
-                return BadAssetModificationState.Identical;
-            }
-
             var chunk = _assetState.assets.GetValueOrDefault( asset.guid );
             if( chunk == null )
             {
@@ -70,10 +65,10 @@ namespace RocketPunch.Bad
                 return BadAssetModificationState.Modified;
             }
 
-            return this.CheckAssetDependencies( asset, rootAssetGroup, checkedAssets );
+            return this.CheckAssetDependencies( asset, rootAssetGroup );
         }
         
-        private BadAssetModificationState CheckAssetDependencies( BadAsset asset, BadAssetGroup rootAssetGroup, HashSet<BadAsset> checkedAssets )
+        private BadAssetModificationState CheckAssetDependencies( BadAsset asset, BadAssetGroup rootAssetGroup )
         {
             foreach( var dependency in asset.dependencies )
             {
@@ -83,7 +78,7 @@ namespace RocketPunch.Bad
                     continue;
                 }
                 
-                var state = this.CheckAsset( dependency, rootAssetGroup, checkedAssets );
+                var state = this.CheckAsset( dependency, rootAssetGroup );
                 if( state != BadAssetModificationState.Identical )
                 {
                     return BadAssetModificationState.Modified;

@@ -58,7 +58,7 @@ namespace RocketPunch.Bad
             var buildPath = BadSettings.instance.buildPath;
             var bundleBuilds = groups.ConvertAll( g => g.ToAssetBundleBuild() ).ToArray();
             var buildTarget = EditorUserBuildSettings.activeBuildTarget;
-            var manifest = CompatibilityBuildPipeline.BuildAssetBundles( buildPath, bundleBuilds, BuildAssetBundleOptions.None, buildTarget );
+            var manifest = CompatibilityBuildPipeline.BuildAssetBundles( buildPath, bundleBuilds, BuildAssetBundleOptions.DeterministicAssetBundle, buildTarget );
             Assert.IsNotNull( manifest );
 
             return this.CalculateBundleStates( groups );
@@ -148,8 +148,8 @@ namespace RocketPunch.Bad
             {
                 if( dependencies.Contains( dependency ) == false )
                 {
-                    dependencies.Add( dependency );
                     this.CollectAllDependenciesRecursive( dependency, dependencies );
+                    dependencies.Add( dependency );
                 }
             }
         }
