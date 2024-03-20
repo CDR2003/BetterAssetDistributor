@@ -11,9 +11,9 @@ namespace RocketPunch.Bad
         
         public List<BadDownloadItemChunk> items = new();
 
-        public BadAssetInfoFile oldInfo { get; private set; }
+        public BadAssetInfoFile oldInfo { get; set; }
         
-        public BadAssetInfoFile newInfo { get; private set; }
+        public BadAssetInfoFile newInfo { get; set; }
 
         public static BadDownloadListFile Create( BadAssetInfoFile newInfo, BadAssetInfoFile oldInfo, string version )
         {
@@ -38,6 +38,17 @@ namespace RocketPunch.Bad
         public static BadDownloadListFile ReadFromFile( string path )
         {
             using var file = new BadStringIndexedFile( path );
+            return ReadFromFile( file );
+        }
+
+        public static BadDownloadListFile ReadFromBytes( byte[] bytes )
+        {
+            using var file = new BadStringIndexedFile( bytes );
+            return ReadFromFile( file );
+        }
+
+        private static BadDownloadListFile ReadFromFile( BadStringIndexedFile file )
+        {
             var downloadListFile = new BadDownloadListFile();
             downloadListFile.version = file.ReadString();
             

@@ -71,7 +71,11 @@ namespace RocketPunch.Bad
         private void FillInDependencies( BadAssetGroup group, BadAsset asset,
             Dictionary<BadAsset, BadAssetGroup> assetGroups, HashSet<BadAssetGroup> allDependencies )
         {
-            allDependencies.Add( group );
+            if( allDependencies.Add( group ) == false )
+            {
+                return;
+            }
+            
             foreach( var dependency in asset.dependencies )
             {
                 var dependencyGroup = assetGroups.GetValueOrDefault( dependency );
