@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace RocketPunch.Bad
 {
@@ -44,7 +45,14 @@ namespace RocketPunch.Bad
             return asset.loadedInfo.obj as T;
         }
 
-        public static BadLoadAssetOperation LoadAsync<T>( string name ) where T : UnityEngine.Object
+        public static T LoadByGuid<T>(string key) where T : UnityEngine.Object
+        {
+            var asset = BadAssetLibrary.instance.GetAssetInfoByGuid(key);
+            asset.Load();
+            return asset.loadedInfo.obj as T;
+        }
+
+        public static BadLoadAssetOperation<T> LoadAsync<T>( string name ) where T : UnityEngine.Object
         {
             if( string.IsNullOrEmpty( name ) )
             {
@@ -57,7 +65,45 @@ namespace RocketPunch.Bad
                 throw new Exception( $"Cannot find asset '{name}'" );
             }
 
-            var operation = asset.LoadAsync();
+            var operation = asset.LoadAsync<T>();
+            BadOperationScheduler.instance.EnqueueOperation( operation );
+
+            return operation;
+        }
+        
+        public static BadLoadAssetOperation<T> LoadAsyncByGuid<T>( string key ) where T : UnityEngine.Object
+        {
+            if( string.IsNullOrEmpty( key ) )
+            {
+                throw new Exception( $"Key is null or empty" );
+            }
+            
+            var asset = BadAssetLibrary.instance.GetAssetInfoByGuid( key );
+            if( asset == null )
+            {
+                throw new Exception( $"Cannot find asset '{key}'" );
+            }
+
+            var operation = asset.LoadAsync<T>();
+            BadOperationScheduler.instance.EnqueueOperation( operation );
+
+            return operation;
+        }
+        
+        public static BadLoadSceneOperation LoadSceneAsync(string guid, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
+        {
+            if( string.IsNullOrEmpty( guid ) )
+            {
+                throw new Exception( $"Guid is null or empty" );
+            }
+            
+            var asset = BadAssetLibrary.instance.GetAssetInfoByGuid( guid );
+            if( asset == null )
+            {
+                throw new Exception( $"Cannot find asset '{guid}'" );
+            }
+
+            var operation = asset.LoadSceneAsync(loadSceneMode);
             BadOperationScheduler.instance.EnqueueOperation( operation );
 
             return operation;
@@ -92,6 +138,13 @@ namespace RocketPunch.Bad
             var operation = asset.UnloadAsync();
             BadOperationScheduler.instance.EnqueueOperation( operation );
             
+            return operation;
+        }
+
+        public static BadUnloadSceneOperation UnloadSceneAsync(BadLoadSceneOperation badLoadSceneOperation)
+        {
+            var operation = badLoadSceneOperation.UnloadAsync();
+            BadOperationScheduler.instance.EnqueueOperation( operation );
             return operation;
         }
     }

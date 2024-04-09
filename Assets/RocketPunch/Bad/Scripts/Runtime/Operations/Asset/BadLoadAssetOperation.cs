@@ -2,7 +2,7 @@
 
 namespace RocketPunch.Bad
 {
-    public class BadLoadAssetOperation : BadOperation<Object>
+    public class BadLoadAssetOperation<T> : BadOperation<T> where T : UnityEngine.Object
     {
         private readonly BadAssetInfo _assetInfo;
 
@@ -24,7 +24,7 @@ namespace RocketPunch.Bad
                 var dependencyOperation = new BadSequenceOperation();
                 foreach( var dependency in _assetInfo.dependencies )
                 {
-                    var operation = dependency.LoadAsync();
+                    var operation = dependency.LoadAsync<UnityEngine.Object>();
                     dependencyOperation.Add( operation );
                 }
                 _requiredOperation.Add( dependencyOperation );
@@ -45,7 +45,7 @@ namespace RocketPunch.Bad
                 }
                 _assetInfo.loadedInfo.referenceCount++;
                 
-                this.Complete( _assetInfo.loadedInfo.obj );
+                this.Complete( _assetInfo.loadedInfo.obj as T);
                 return;
             }
             
@@ -92,7 +92,7 @@ namespace RocketPunch.Bad
             
             BadLog.Info( $"[ASYNC] Loaded asset '{_assetInfo.name}' ({_assetInfo.guid}) from bundle '{_assetInfo.bundle.name}'" );
             
-            this.Complete( _assetInfo.loadedInfo.obj );
+            this.Complete( _assetInfo.loadedInfo.obj as T);
         }
     }
 }

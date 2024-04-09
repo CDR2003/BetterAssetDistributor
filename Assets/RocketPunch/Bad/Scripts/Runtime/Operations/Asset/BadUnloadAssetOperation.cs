@@ -4,9 +4,9 @@ namespace RocketPunch.Bad
 {
     public class BadUnloadAssetOperation : BadOperation
     {
-        private readonly BadAssetInfo _assetInfo;
+        protected readonly BadAssetInfo _assetInfo;
 
-        private BadSequenceOperation _postOperation;
+        protected BadSequenceOperation _postOperation;
         
         public BadUnloadAssetOperation( BadAssetInfo assetInfo )
         {
@@ -50,14 +50,14 @@ namespace RocketPunch.Bad
             return $"UnloadAsset: {_assetInfo.name} ({_assetInfo.guid}) @ '{_assetInfo.bundle.name}'";
         }
 
-        private void OnSequenceCompleted( BadOperation operation )
+        protected void OnSequenceCompleted( BadOperation operation )
         {
             _postOperation.complete -= this.OnSequenceCompleted;
             _postOperation.error -= this.OnSequenceError;
             this.Complete();
         }
         
-        private void OnSequenceError( BadOperation operation, string message )
+        protected void OnSequenceError( BadOperation operation, string message )
         {
             _postOperation.complete -= this.OnSequenceCompleted;
             _postOperation.error -= this.OnSequenceError;

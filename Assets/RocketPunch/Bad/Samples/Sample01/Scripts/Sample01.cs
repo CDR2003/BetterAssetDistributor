@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace RocketPunch.Bad.Samples
 {
@@ -9,7 +10,7 @@ namespace RocketPunch.Bad.Samples
 
         private GameObject _cubePrefab;
 
-        private BadLoadAssetOperation _loadOperation;
+        private BadLoadAssetOperation<GameObject> _loadOperation;
 
         private Stack<GameObject> _cubes = new();
 
@@ -22,6 +23,8 @@ namespace RocketPunch.Bad.Samples
             updateManager.versionCheck += this.OnVersionCheck;
             updateManager.error += this.OnError;
             updateManager.CheckVersion();
+            
+            DontDestroyOnLoad(this);
         }
 
         private void OnError( string message )
@@ -98,6 +101,8 @@ namespace RocketPunch.Bad.Samples
             Debug.Assert( cube.GetComponent<MeshRenderer>().sharedMaterial.mainTexture );
         }
 
+        private bool newScene = false;
+        private BadLoadSceneOperation sceneLoader;
         private void Update()
         {
             if( Input.GetMouseButtonDown( 0 ) )
@@ -113,6 +118,23 @@ namespace RocketPunch.Bad.Samples
                     var cube = _cubes.Pop();
                     Destroy( cube );
                     BadLoader.UnloadAsync( _cubePrefab );
+                }
+            }
+
+            if (Input.GetMouseButton(2))
+            {
+                // SceneManager.
+                if (!newScene)
+                {
+                    sceneLoader=BadLoader.LoadSceneAsync("dba50ef0c19a4c941824b28cb29fc22b");
+                    newScene = true;
+                }
+                else
+                {
+                    SceneManager.LoadScene("Sample01");
+                    BadLoader.UnloadSceneAsync(sceneLoader);
+                    
+                    newScene = false;
                 }
             }
         }

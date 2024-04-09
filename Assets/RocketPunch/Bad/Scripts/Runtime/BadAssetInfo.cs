@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace RocketPunch.Bad
 {
@@ -30,9 +31,14 @@ namespace RocketPunch.Bad
             this.loadedInfo.referenceCount++;
         }
         
-        public BadLoadAssetOperation LoadAsync()
+        public BadLoadAssetOperation<T> LoadAsync<T>() where T : UnityEngine.Object
         {
-            return new BadLoadAssetOperation( this );
+            return new BadLoadAssetOperation<T>( this );
+        }
+
+        public BadLoadSceneOperation LoadSceneAsync(LoadSceneMode loadSceneMode)
+        {
+            return new BadLoadSceneOperation( this, loadSceneMode );
         }
 
         public void Unload()
@@ -52,6 +58,11 @@ namespace RocketPunch.Bad
         {
             Debug.Assert( this.loadedInfo != null );
             return new BadUnloadAssetOperation( this );
+        }
+
+        public BadUnloadSceneOperation UnloadSceneAsync()
+        {
+            return new BadUnloadSceneOperation( this );
         }
 
         public override string ToString()

@@ -1,4 +1,5 @@
 ﻿using System;
+using Object = UnityEngine.Object;
 
 namespace RocketPunch.Bad
 {
@@ -11,6 +12,8 @@ namespace RocketPunch.Bad
         public event CompleteDelegate complete;
 
         public event ErrorDelegate error;
+
+        public bool isCompleted { get; protected set; }
         
         public abstract void Run();
 
@@ -33,11 +36,18 @@ namespace RocketPunch.Bad
     
     public abstract class BadOperation<T> : BadOperation
     {
+        public new delegate void CompleteDelegate( BadOperation<T> operation );
+        
+        public new event CompleteDelegate complete;
+
         public T value { get; private set; }
 
         protected void Complete( T value )
         {
             this.value = value;
+            complete?.Invoke( this );
+            Cleanup();
+            isCompleted = true;
             base.Complete();
         }
     }
